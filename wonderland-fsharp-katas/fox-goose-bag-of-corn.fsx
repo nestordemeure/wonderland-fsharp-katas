@@ -1,9 +1,17 @@
 // See the file fox-goose-bag-of-corn.md for detailed information.
 
+type Animal = F | G | C | Y
+
 type Location =
     | LeftBank
     | RightBank
     | Boat
+    /// returns the opposite bank of the river
+    member this.Opposite =
+        match this with 
+        | LeftBank -> RightBank
+        | RightBank -> LeftBank
+        | Boat -> failwith "the boat stays where it is"
 
 type Positions = {
     Fox:    Location
@@ -23,13 +31,79 @@ let Final = {
     Corn =  RightBank
     You =   RightBank }
 
-let riverCrossingPlan () : Positions list =
-    [
-        Start
-        // do something here!
-        Final
-    ]
+//-------------------------------------------------------------------------------------------------
+// SOLUTION
 
+/// unit pipe
+let inline (|->) x f = f x ; x
+
+/// a memory of all visited states
+let knownPositions = System.Collections.Generic.Dictionary<Positions,bool>()
+
+/// check to makes sure that nobody is eating someone and that we have not tried that position yet
+let isLegal position =
+    (not <| knownPositions.ContainsKey position)
+    &&
+    (position.You = position.Fox
+    || position.Fox <> position.Goose)
+    &&
+    (position.You = position.Goose
+    || position.Goose <> position.Corn)
+
+/// returns (you in a boat with an animal , a new legal position) or None if the move is not legal
+let traverse position animal =
+    match animal with 
+    | F when position.Fox = position.You -> 
+        let newPosition = {position with Fox = position.Fox.Opposite ; You = position.You.Opposite}
+        if isLegal newPosition then 
+            Some ({position with Fox = Boat ; You = Boat}, newPosition)
+        else None
+    | G when position.Goose = position.You -> 
+        let newPosition = {position with Goose = position.Goose.Opposite ; You = position.You.Opposite}
+        if isLegal newPosition then 
+            Some ({position with Goose = Boat ; You = Boat}, newPosition)
+        else None
+    | C when position.Corn = position.You -> 
+        let newPosition = {position with Corn = position.Corn.Opposite ; You = position.You.Opposite}
+        if isLegal newPosition then 
+            Some ({position with Corn = Boat ; You = Boat}, newPosition)
+        else None
+    | Y -> 
+        let newPosition = {position with You = position.You.Opposite}
+        if isLegal newPosition then 
+            Some ({position with You = Boat}, newPosition)
+        else None
+    | _ -> None
+
+//-----
+
+/// returns the list of steps needed to get, from this position included, to the Final position
+/// if it is doable, otherwise returns None
+let rec getToTheEnd position =
+    knownPositions.[position] <- true
+    if position = Final then 
+        Some [position]
+    else
+        let legalMoves = List.choose (traverse position) [F; G; C; Y] 
+        let rec testAllMoves moves =
+            match moves with 
+            | [] -> None
+            | (boat,nextPosition)::q -> 
+                match getToTheEnd nextPosition with 
+                | None -> testAllMoves q
+                | Some l -> Some (position::boat::l)
+        testAllMoves legalMoves
+
+//-----
+
+let riverCrossingPlan () : Positions list = 
+    knownPositions.Clear()
+    match getToTheEnd Start with
+    | None -> failwith "no solution found"
+    | Some solution -> solution |-> printfn "%A"
+
+//-------------------------------------------------------------------------------------------------
+// TEST
 
 #r @"../packages/Unquote/lib/net45/Unquote.dll"
 open Swensen.Unquote
