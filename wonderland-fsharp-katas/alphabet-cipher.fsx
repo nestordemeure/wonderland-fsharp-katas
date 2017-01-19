@@ -6,11 +6,11 @@ type Keyword = string
 //-------------------------------------------------------------------------------------------------
 // EXTENSIONS
 
-///unit pipe
+/// unit pipe
 let inline (|->) x f = f x ; x
 
 module Array =
-    /// test a predicate on all the value of an array and their index
+    /// tests a predicate on all the values of an array and their index
     let foralli f (a : 'T []) =
         let mutable cont = true
         let mutable i = 0
@@ -24,21 +24,21 @@ module Array =
 
 let letters = [| 'a'..'z' |]
 
-/// take two chars and returns the encoded char
+/// takes two chars and returns the encoded char
 let substitutionChart (cMessage:char) (cKey:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
     let iKey = (int cKey) - ia
     letters.[ (iKey+iMessage) % 26 ]
 
-/// take two chars and returns the decoded char
+/// takes two chars and returns the decoded char
 let unSubstitutionChart (cMessage:char) (cKey:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
     let iKey = (int cKey) - ia
     letters.[ (iMessage-iKey+26) % 26 ]
 
-/// take two chars and returns the key char
+/// takes two chars and returns the corresponding key char
 let unCipherChart (cMessage:char) (cCipher:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
@@ -47,7 +47,7 @@ let unCipherChart (cMessage:char) (cCipher:char) =
 
 /// returns the shortest substring that is repeated across the array
 let extractPeriod arr =
-    /// test a period. If it fails, test (period+1) etc
+    /// tests a period. If it fails, test (period+1) etc
     let rec findPeriod period arr =
         if period = Array.length arr then period
         elif Array.foralli (fun i c -> c = arr.[i % period]) arr then period

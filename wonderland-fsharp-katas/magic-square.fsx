@@ -13,7 +13,7 @@ let dim = 3
 let inline (|->) x f = f x ; x
 
 module Array =
-    /// sway two element in an array
+    /// swap two element in an array
     let inline swap (arr: 'T []) i j = 
         let temp = arr.[i]
         arr.[i] <- arr.[j]
@@ -26,10 +26,10 @@ module Array2D =
 //-------------------------------------------------------------------------------------------------
 // SOLUTION
 
-/// represents a square as an array (instead of a 2Darray)
+/// represents a magic square as an array (instead of a 2Darray)
 type FlatSquare = float []
 
-/// returns true if a flatSquare represents a magicSquare
+/// returns true if a flatSquare is a magicSquare
 let isMagic (flatSquare : FlatSquare) =
     /// sum of a diagonal
     let diagIncr (fs : FlatSquare) =
@@ -64,7 +64,6 @@ let isMagic (flatSquare : FlatSquare) =
         }
     /// all sums should be equal to the target sum
     let targetSum = diagIncr flatSquare
-    /// the test
     (targetSum = digDecr flatSquare) 
     && Seq.forall ((=) targetSum) everySum
 
@@ -73,16 +72,16 @@ let isMagic (flatSquare : FlatSquare) =
 /// note : modify the first array in place so the sequence element should be read-only and never more than one a t a time
 let rec allPossibleSquares startingIndex (tab : FlatSquare) = 
     seq {
-        if startingIndex >= tab.Length-1 then
-            yield tab
-        else for i = startingIndex to tab.Length-1 do
-                Array.swap tab i startingIndex
-                yield! allPossibleSquares (startingIndex+1) tab
-                Array.swap tab startingIndex i
+        if startingIndex >= tab.Length-1 then yield tab else 
+        for i = startingIndex to tab.Length-1 do
+            Array.swap tab i startingIndex
+            yield! allPossibleSquares (startingIndex+1) tab
+            Array.swap tab startingIndex i
     }
 
 /// convert a flatSquare into a Square
-let toSquare (flatSquare : FlatSquare) : Square = Array2D.init dim dim (fun row col -> flatSquare.[row * dim + col])
+let toSquare (flatSquare : FlatSquare) : Square = 
+    Array2D.init dim dim (fun row col -> flatSquare.[row * dim + col])
 
 //----
 

@@ -5,47 +5,47 @@ type Cell =
     | Exit
     | Empty
     | Wall
-    member this.Vide = this <> Wall
+    member this.NonBlocking = this <> Wall
 
 type Maze = Cell [,]
 
-type Path =
-    | X
-    | O
+type Path = X | O
 
 type Solution = Path [,]
+
+//-------------------------------------------------------------------------------------------------
+// SOLUTION
 
 /// unit pipe
 let (|->) x f = f x ; x
 
-/// bruteForce, recurcive
 let solve (maze:Maze) : Solution =
     let l1 = Array2D.length1 maze
     let l2 = Array2D.length1 maze
     let unVisited = Array2D.create l1 l2 true
     let result = Array2D.create l1 l2 O
+    /// returns the legal, still unvisited, neigbours of a cell
     let getNeigbours i j =
         [
-            if i-1 >= 0 && unVisited.[i-1,j] && maze.[i-1,j].Vide then 
+            if i-1 >= 0 && unVisited.[i-1,j] && maze.[i-1,j].NonBlocking then 
                 yield (i-1,j)
-            if i+1 < l1 && unVisited.[i+1,j] && maze.[i+1,j].Vide then 
+            if i+1 < l1 && unVisited.[i+1,j] && maze.[i+1,j].NonBlocking then 
                 yield (i+1,j)
-            if j-1 >= 0 && unVisited.[i,j-1] && maze.[i,j-1].Vide then 
+            if j-1 >= 0 && unVisited.[i,j-1] && maze.[i,j-1].NonBlocking then 
                 yield (i,j-1)
-            if j+1 < l1 && unVisited.[i,j+1] && maze.[i,j+1].Vide then 
+            if j+1 < l1 && unVisited.[i,j+1] && maze.[i,j+1].NonBlocking then 
                 yield (i,j+1)
         ]
+    /// if (i,j) is on the path to the exit then it is inscribed in the result and the function returns true
+    /// else returns false
     let rec hasPath (i,j) =
         unVisited.[i,j] <- false 
-        let onPath =
-            maze.[i,j] = Exit ||
-            match getNeigbours i j with 
-             | [] -> false
-             | neigbours -> List.exists hasPath neigbours
+        let onPath = ( maze.[i,j] = Exit ) || ( getNeigbours i j |> List.exists hasPath )
         if onPath then result.[i,j] <- X ; true else false
-    if hasPath (0,0) then result |-> printfn "%A"
-    else failwith "boom"
+    if not <| hasPath (0,0) then failwith "boom" else result |-> printfn "%A"
 
+//-------------------------------------------------------------------------------------------------
+// TEST
 
 #r @"../packages/Unquote/lib/net45/Unquote.dll"
 open Swensen.Unquote
