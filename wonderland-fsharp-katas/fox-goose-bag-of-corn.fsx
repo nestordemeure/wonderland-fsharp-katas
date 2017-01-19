@@ -40,7 +40,7 @@ let inline (|->) x f = f x ; x
 /// a memory of all visited states
 let knownPositions = System.Collections.Generic.Dictionary<Positions,bool>()
 
-/// check to makes sure that nobody is eating someone and that we have not tried that position yet
+/// checks to makes sure that nobody is eating someone and that we have not tried that position yet
 let isLegal position =
     (not <| knownPositions.ContainsKey position)
     &&
@@ -50,7 +50,8 @@ let isLegal position =
     (position.You = position.Goose
     || position.Goose <> position.Corn)
 
-/// returns (you in a boat with an animal , a new legal position) or None if the move is not legal
+/// returns (you in a boat with an animal , the resulting new legal position) 
+/// or None if the move is not legal
 let traverse position animal =
     match animal with 
     | F when position.Fox = position.You -> 
@@ -81,9 +82,7 @@ let traverse position animal =
 /// if it is doable, otherwise returns None
 let rec getToTheEnd position =
     knownPositions.[position] <- true
-    if position = Final then 
-        Some [position]
-    else
+    if position = Final then Some [position] else
         let legalMoves = List.choose (traverse position) [F; G; C; Y] 
         let rec testAllMoves moves =
             match moves with 
@@ -119,6 +118,7 @@ let isValidTransition transition =
     |> Seq.exists ((=) transition)
     |> not
 
+//-----
 
 let tests () =
 

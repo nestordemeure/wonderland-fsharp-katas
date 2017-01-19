@@ -83,5 +83,5 @@ let tests () =
     // "the player loses when they run out of cards"
     test <@ playGame ( [(Ace,Heart)] , [] ) = Player1 @>
 
-// run the tests
+// runs the tests
 tests ()

@@ -15,14 +15,14 @@ type MutableWord = char []
 
 type Node = 
     { mutable visited : bool ; mutable mutations : MutableWord list }
-    /// build an empty node
+    /// builds an empty node
     static member Create () = { visited = false ; mutations = []}
 
 type Graph = IDictionary<MutableWord,Node>
 
 //-----
 
-/// mutate the word in every possible way and register the mutations that point to existing words
+/// mutates the word in every possible way and register (in the graph) the mutations that point to existing words
 let registerMutations (graph : Graph) (word : MutableWord) =
     let key = Array.copy word
     for i = 0 to word.Length - 1 do 
@@ -36,8 +36,8 @@ let registerMutations (graph : Graph) (word : MutableWord) =
 
 //-----
 
-/// take an array of words and returns a graph with each word linked to his mutations
-let createGraph (words : Word []) =
+/// takes an array of words and returns a graph with each word linked to his mutations
+let createGraph (words : Word []) : Graph =
     let mutableWords = words |> Array.map (fun w -> w.ToCharArray())
     let graph = mutableWords |> Array.map (fun m -> m, Node.Create()) |> dict
     Array.iter (registerMutations graph) mutableWords
@@ -52,24 +52,21 @@ let inline (|->) x f = f x ; x
 /// returns the path to go from a position (included) to a destination
 /// if it does not exist, returns None
 let rec searchPath (graph : Graph) destination position =
-    if position = destination then 
-        Some [position]
-    else 
+    if position = destination then Some [position] else 
         let exist, node = graph.TryGetValue position
-        if exist && not node.visited then
+        if not exist || node.visited then None else
             node.visited <- true 
             let path = List.tryPick (searchPath graph destination) node.mutations
             match path with 
             | None -> None 
             | Some p -> Some (position::p)
-        else None
 
 //-----
 
-/// take two words and returns a list of steps to go from one to the other
-/// returns [] if there is no known path
+/// takes two words and returns a list of steps to go from one to the other
+/// returns [] if there is no path
 let doublets (w1:Word,w2:Word) = 
-    // we could avoid recomputing the graph by storing the name of the testedKeys in a separate datastructure
+    // we could avoid recomputing the graph by storing the name of the visitedKeys in a separate datastructure
     let graph = createGraph words 
     let m1 = w1.ToCharArray()
     let m2 = w2.ToCharArray()
