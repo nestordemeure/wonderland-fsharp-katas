@@ -65,7 +65,8 @@ let isMagic (flatSquare : FlatSquare) =
     /// all sums should be equal to the target sum
     let targetSum = diagIncr flatSquare
     /// the test
-    (targetSum = digDecr flatSquare) && Seq.forall ((=) targetSum) everySum
+    (targetSum = digDecr flatSquare) 
+    && Seq.forall ((=) targetSum) everySum
 
 /// produces a sequence of all possible permutation of the array
 /// the values before the startingIndex are not permuted
