@@ -1,6 +1,6 @@
-# wonderland-fsharp-katas
+# wonderland-fsharp-katas (solved)
 
-Work in progress: one day, this will be an F# port of [@gigasquid](https://twitter.com/gigasquid)'s
+Work in progress: F# port of [@gigasquid](https://twitter.com/gigasquid)'s
 [*wonderland-clojure-katas*](https://github.com/gigasquid/wonderland-clojure-katas).
 
 ![Alice and the tiny door](/images/alicedoor.gif)
