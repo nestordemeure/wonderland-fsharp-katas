@@ -20,14 +20,15 @@ module Array =
         cont
 
 //-------------------------------------------------------------------------------------------------
-// TABLES
+// CHARTS
+
+let letters = [| 'a'..'z' |]
 
 /// take two chars and returns the encoded char
 let substitutionChart (cMessage:char) (cKey:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
     let iKey = (int cKey) - ia
-    let letters = [| 'a'..'z' |]
     letters.[ (iKey+iMessage) % 26 ]
 
 /// take two chars and returns the decoded char
@@ -35,7 +36,6 @@ let unSubstitutionChart (cMessage:char) (cKey:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
     let iKey = (int cKey) - ia
-    let letters = [| 'a'..'z' |]
     letters.[ (iMessage-iKey+26) % 26 ]
 
 /// take two chars and returns the key char
@@ -43,19 +43,20 @@ let unCipherChart (cMessage:char) (cCipher:char) =
     let ia = int 'a'
     let iMessage = (int cMessage) - ia
     let iCipher = (int cCipher) - ia
-    let letters = [| 'a'..'z' |]
     letters.[ (iCipher-iMessage+26) % 26 ]
+
+/// returns the shortest substring that is repeated across the array
+let extractPeriod arr =
+    /// test a period. If it fails, test (period+1) etc
+    let rec findPeriod period arr =
+        if period = Array.length arr then period
+        elif Array.foralli (fun i c -> c = arr.[i % period]) arr then period
+        else findPeriod (period+1) arr
+    let period = findPeriod 1 arr
+    arr.[0..(period-1)]
 
 //-------------------------------------------------------------------------------------------------
 // SOLUTION
-
-/// look for the shortest substring that is repeated across the array
-let rec findPeriod period arr =
-    if period = Array.length arr then period
-    elif Array.foralli (fun i c -> c = arr.[i % period ]) arr then period
-    else findPeriod (period+1) arr
-
-//-----
 
 let encode (key:Keyword) (message:Message) : Message =
     Array.init message.Length (fun i -> substitutionChart message.[i] key.[i % key.Length])
@@ -68,9 +69,8 @@ let decode (key:Keyword) (message:Message) : Message =
     |-> printfn "%s"
 
 let decipher (cipher:Message) (message:Message) : Keyword =
-    let repeatedKey = Array.init message.Length (fun i -> unCipherChart message.[i] cipher.[i])
-    let period = findPeriod 1 repeatedKey
-    repeatedKey.[0..(period-1)]
+    Array.init message.Length (fun i -> unCipherChart message.[i] cipher.[i])
+    |> extractPeriod
     |> System.String.Concat
     |-> printfn "%s"
 
