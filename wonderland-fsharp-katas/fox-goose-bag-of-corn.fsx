@@ -118,7 +118,6 @@ let isValidTransition transition =
     |> Seq.exists ((=) transition)
     |> not
 
-//-----
 
 let tests () =
 
