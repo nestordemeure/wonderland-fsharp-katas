@@ -19,10 +19,6 @@ module Array =
         arr.[i] <- arr.[j]
         arr.[j] <- temp
 
-module Array2D =
-    /// build a set from an Array2D
-    let toSet (arr: 'T [,]) = arr |> Seq.cast<'T> |> set
-
 //-------------------------------------------------------------------------------------------------
 // SOLUTION
 
@@ -116,6 +112,9 @@ let sumDownDiagonal (sq:Square) =
 let sumUpDiagonal (sq:Square) =
     [ for i in indexes -> sq.[i, maxIndex - i] ] |> List.sum
 
+let squareToSet (sq: Square) = 
+    sq |> Seq.cast<'T> |> set
+
 //-----
 
 let tests () =
@@ -123,7 +122,7 @@ let tests () =
     let magic = magicSquare ()
 
     // the square should be made using only the given values
-    test <@ Array2D.toSet magic = set values @>
+    test <@ squareToSet magic = set values @>
 
     // all the rows sum to the same number
     test <@ indexes |> List.map (sumRow magic) |> Set.ofList |> Set.count = 1 @>
